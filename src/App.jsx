@@ -12,7 +12,16 @@ const POINTS_SPRINT = {
   1: 8, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1
 };
 
-// 2025 Top 3 Contenders (Post Las Vegas GP - Nov 23, 2025)
+// Fixed Results for Completed Races (Qatar Sprint)
+const FIXED_RESULTS = {
+  qatar_sprint: {
+    pia: '1',
+    nor: '3',
+    ver: '4'
+  }
+};
+
+// 2025 Top 3 Contenders (Updated Post-Qatar Sprint)
 const INITIAL_DRIVERS = [
   { 
     id: 'nor', 
@@ -21,7 +30,7 @@ const INITIAL_DRIVERS = [
     shortName: 'NOR', 
     team: 'McLaren', 
     color: '#ff8000', 
-    points: 390,
+    points: 396, // 390 + 6 (P3 Sprint)
     gpWins: 7, 
     gpP2s: 8   
   },
@@ -32,7 +41,7 @@ const INITIAL_DRIVERS = [
     shortName: 'PIA',
     team: 'McLaren', 
     color: '#ff8000', 
-    points: 366, 
+    points: 374, // 366 + 8 (P1 Sprint)
     gpWins: 7, 
     gpP2s: 3
   },
@@ -43,17 +52,18 @@ const INITIAL_DRIVERS = [
     shortName: 'VER',
     team: 'Red Bull', 
     color: '#1e41ff', 
-    points: 366, 
+    points: 371, // 366 + 5 (P4 Sprint)
     gpWins: 6, 
     gpP2s: 5
   }
 ];
 
 // Remaining Races - Simplified Headers for Mobile
+// Marked qatar_sprint as finished
 const RACES = [
-  { id: 'qatar_sprint', name: 'Qatar Sprint', type: 'SPRINT', header: 'QAT', sub: 'Spr', mobileHeader: 'QAT' },
-  { id: 'qatar_gp', name: 'Qatar GP', type: 'GP', header: 'QAT', sub: 'GP', mobileHeader: 'QAT' },
-  { id: 'abu_dhabi', name: 'Abu Dhabi GP', type: 'GP', header: 'ABU', sub: 'GP', mobileHeader: 'ABU' },
+  { id: 'qatar_sprint', name: 'Qatar Sprint', type: 'SPRINT', header: 'QAT', sub: 'Spr', mobileHeader: 'Q.S', isFinished: true },
+  { id: 'qatar_gp', name: 'Qatar GP', type: 'GP', header: 'QAT', sub: 'GP', mobileHeader: 'Q.G', isFinished: false },
+  { id: 'abu_dhabi', name: 'Abu Dhabi GP', type: 'GP', header: 'ABU', sub: 'GP', mobileHeader: 'A.D', isFinished: false },
 ];
 
 const POSITION_OPTIONS = [
@@ -126,6 +136,9 @@ export default function F1Calculator() {
       let newP2s = 0;
       
       RACES.forEach(race => {
+        // If race is finished, points are already in 'driver.points', so skip calc
+        if (race.isFinished) return;
+
         const pred = predictions[driver.id]?.[race.id];
         if (pred && pred !== 'DNF' && pred !== 'DSQ' && pred !== 'DNS') {
           const pos = parseInt(pred);
@@ -149,7 +162,6 @@ export default function F1Calculator() {
     });
 
     // Automatic Sort Logic with Tie-Breaker
-    // Rules: Total Score -> GP Wins -> GP P2s -> Current Points
     const sorted = [...processed].sort((a, b) => {
       if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
       if (b.projectedWins !== a.projectedWins) return b.projectedWins - a.projectedWins;
@@ -264,34 +276,41 @@ export default function F1Calculator() {
                         </div>
                       </td>
 
-                      {/* Race Dropdowns */}
+                      {/* Race Dropdowns / Static Results */}
                       {RACES.map(race => {
+                        // Check if race is finished
+                        if (race.isFinished) {
+                          const result = FIXED_RESULTS[race.id]?.[driver.id] || '-';
+                          let resultBg = 'bg-slate-50 text-slate-400'; // Default
+                          if (result === '1') resultBg = 'bg-yellow-100 text-yellow-800 border-yellow-200 font-bold';
+                          if (result === '2') resultBg = 'bg-slate-100 text-slate-700 border-slate-200 font-bold';
+                          if (result === '3') resultBg = 'bg-orange-100 text-orange-800 border-orange-200 font-bold';
+                          if (['4','5','6','7','8'].includes(result)) resultBg = 'bg-green-50 text-green-700 border-green-100 font-medium';
+
+                          return (
+                            <td key={race.id} className="px-1 py-2 align-middle text-center">
+                              <div className={`
+                                flex items-center justify-center w-full h-8 rounded border text-xs
+                                ${resultBg} border-opacity-50
+                              `}>
+                                P{result}
+                              </div>
+                            </td>
+                          );
+                        }
+
+                        // --- Interactive Dropdowns for Future Races ---
                         const selection = predictions[driver.id]?.[race.id] || '';
                         const usedPositions = getUsedPositions(race.id);
 
                         let cellBg = '';
                         let textColor = 'text-slate-400';
                         
-                        // Color Scheme: Muted/Pastel Tones
-                        if (selection === '1') { 
-                          // Soft Gold (Amber)
-                          cellBg = 'bg-amber-50 text-amber-700 font-bold border-amber-200'; 
-                        }
-                        else if (selection === '2') { 
-                          // Soft Silver (Slate)
-                          cellBg = 'bg-slate-50 text-slate-600 font-bold border-slate-200'; 
-                        }
-                        else if (selection === '3') { 
-                          // Soft Bronze (Orange)
-                          cellBg = 'bg-orange-50 text-orange-700 font-bold border-orange-200'; 
-                        }
-                        else if (['DNF', 'DSQ', 'DNS'].includes(selection)) { 
-                          // Soft Red
-                          cellBg = 'bg-red-50 text-red-500 border-red-100'; 
-                        }
-                        else if (selection) { 
-                          textColor = 'text-slate-900'; 
-                        }
+                        if (selection === '1') { cellBg = 'bg-amber-50 text-amber-700 font-bold border-amber-200'; }
+                        else if (selection === '2') { cellBg = 'bg-slate-50 text-slate-600 font-bold border-slate-200'; }
+                        else if (selection === '3') { cellBg = 'bg-orange-50 text-orange-700 font-bold border-orange-200'; }
+                        else if (['DNF', 'DSQ', 'DNS'].includes(selection)) { cellBg = 'bg-red-50 text-red-500 border-red-100'; }
+                        else if (selection) { textColor = 'text-slate-900'; }
 
                         return (
                           <td key={race.id} className="px-1 py-2 align-middle text-center">
@@ -303,7 +322,7 @@ export default function F1Calculator() {
                                   appearance-none text-center cursor-pointer
                                   w-full h-8 rounded border text-xs font-medium p-0
                                   focus:outline-none focus:ring-1 focus:ring-blue-500
-                                  [text-align-last:center] /* Center text on iOS/Android */
+                                  [text-align-last:center]
                                   ${selection ? 'border-transparent shadow-sm' : 'border-slate-200 bg-slate-50'}
                                   ${cellBg} ${!selection ? textColor : ''}
                                 `}
