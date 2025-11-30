@@ -12,16 +12,21 @@ const POINTS_SPRINT = {
   1: 8, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1
 };
 
-// Fixed Results for Completed Races (Qatar Sprint)
+// Fixed Results for Completed Races (Qatar Sprint & GP)
 const FIXED_RESULTS = {
   qatar_sprint: {
     pia: '1',
     nor: '3',
     ver: '4'
+  },
+  qatar_gp: {
+    ver: '1',
+    pia: '2',
+    nor: '4'
   }
 };
 
-// 2025 Top 3 Contenders (Updated Post-Qatar Sprint)
+// 2025 Top 3 Contenders (Updated Post-Qatar GP)
 const INITIAL_DRIVERS = [
   { 
     id: 'nor', 
@@ -30,20 +35,9 @@ const INITIAL_DRIVERS = [
     shortName: 'NOR', 
     team: 'McLaren', 
     color: '#ff8000', 
-    points: 396, // 390 + 6 (P3 Sprint)
+    points: 408, // 396 + 12 (P4)
     gpWins: 7, 
     gpP2s: 8   
-  },
-  { 
-    id: 'pia', 
-    number: 81, 
-    name: 'Oscar Piastri', 
-    shortName: 'PIA',
-    team: 'McLaren', 
-    color: '#ff8000', 
-    points: 374, // 366 + 8 (P1 Sprint)
-    gpWins: 7, 
-    gpP2s: 3
   },
   { 
     id: 'ver', 
@@ -52,41 +46,52 @@ const INITIAL_DRIVERS = [
     shortName: 'VER',
     team: 'Red Bull', 
     color: '#1e41ff', 
-    points: 371, // 366 + 5 (P4 Sprint)
-    gpWins: 6, 
+    points: 396, // 371 + 25 (P1)
+    gpWins: 7, // +1 Win (Now equal with others)
     gpP2s: 5
+  },
+  { 
+    id: 'pia', 
+    number: 81, 
+    name: 'Oscar Piastri', 
+    shortName: 'PIA',
+    team: 'McLaren', 
+    color: '#ff8000', 
+    points: 392, // 374 + 18 (P2)
+    gpWins: 7, 
+    gpP2s: 4 // +1 P2
   }
 ];
 
 // Remaining Races - Simplified Headers for Mobile
-// Marked qatar_sprint as finished
+// Marked qatar_sprint and qatar_gp as finished
 const RACES = [
   { id: 'qatar_sprint', name: 'Qatar Sprint', type: 'SPRINT', header: 'QAT', sub: 'Spr', mobileHeader: 'Q.S', isFinished: true },
-  { id: 'qatar_gp', name: 'Qatar GP', type: 'GP', header: 'QAT', sub: 'GP', mobileHeader: 'Q.G', isFinished: false },
+  { id: 'qatar_gp', name: 'Qatar GP', type: 'GP', header: 'QAT', sub: 'GP', mobileHeader: 'Q.G', isFinished: true },
   { id: 'abu_dhabi', name: 'Abu Dhabi GP', type: 'GP', header: 'ABU', sub: 'GP', mobileHeader: 'A.D', isFinished: false },
 ];
 
 const POSITION_OPTIONS = [
-  { value: '1', label: 'P1' },
-  { value: '2', label: 'P2' },
-  { value: '3', label: 'P3' },
-  { value: '4', label: 'P4' },
-  { value: '5', label: 'P5' },
-  { value: '6', label: 'P6' },
-  { value: '7', label: 'P7' },
-  { value: '8', label: 'P8' },
-  { value: '9', label: 'P9' },
-  { value: '10', label: 'P10' },
-  { value: '11', label: 'P11' },
-  { value: '12', label: 'P12' },
-  { value: '13', label: 'P13' },
-  { value: '14', label: 'P14' },
-  { value: '15', label: 'P15' },
-  { value: '16', label: 'P16' },
-  { value: '17', label: 'P17' },
-  { value: '18', label: 'P18' },
-  { value: '19', label: 'P19' },
-  { value: '20', label: 'P20' },
+  { value: '1', label: '1' },
+  { value: '2', label: '2' },
+  { value: '3', label: '3' },
+  { value: '4', label: '4' },
+  { value: '5', label: '5' },
+  { value: '6', label: '6' },
+  { value: '7', label: '7' },
+  { value: '8', label: '8' },
+  { value: '9', label: '9' },
+  { value: '10', label: '10' },
+  { value: '11', label: '11' },
+  { value: '12', label: '12' },
+  { value: '13', label: '13' },
+  { value: '14', label: '14' },
+  { value: '15', label: '15' },
+  { value: '16', label: '16' },
+  { value: '17', label: '17' },
+  { value: '18', label: '18' },
+  { value: '19', label: '19' },
+  { value: '20', label: '20' },
   { value: 'DNF', label: 'DNF' },
   { value: 'DSQ', label: 'DSQ' },
   { value: 'DNS', label: 'DNS' },
